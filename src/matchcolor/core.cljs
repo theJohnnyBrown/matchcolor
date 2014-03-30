@@ -6,9 +6,8 @@
 (def browser? (exists? js/document))
 
 (if browser?
-  (let [{:keys [template active]}
+  (let [{:keys [template state]}
         (secretary/dispatch! (-> js/window .-location .-pathname))]
     (.log js/console (str "setup template " template))
-    ;; (browser/setup-app template active)
-    (js* "debugger;;"))
+    (browser/setup-app template state))
   (set! *main-cli-fn* server/-main))

@@ -1,8 +1,10 @@
 (ns matchcolor.views
+  (:require-macros [hiccups.core :as hiccups])
   (:require [om.core :as om :include-macros true]
             [goog.events :as ev]
             [sablono.core :as html :refer-macros [html]]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            hiccups.runtime)
   (:import goog.history.Html5History))
 
 (def __dirname (if (exists? (js* "__dirname")) (js* "__dirname")))
@@ -10,13 +12,16 @@
 (def node-require (if __dirname (js* "require")))
 (def node-process (if __dirname (js* "process")))
 
-(def app-state (atom {}))
-
 (def browser? (exists? js/document))
 (def site-name "MatchColor")
 (def React (if browser? js/React (node-require "react")))
 
 (declare client-load!)
+
+(defn map->css [map]
+  (str/join
+   (for [[k v] map]
+     (str (name k) ": " v ";"))))
 
 (defn nav [{active :active}]
   (om/component
@@ -79,10 +84,10 @@
         [:h2
          (str "Color Distance: " (get hsh :colordistance))]]]])))
 
+(declare render-html)
 (defn layout [state]
-  (om/component
-     (html
-      [:html
+  (hiccups/html
+   [:html
        {:lang "en"}
        [:head
         [:meta {:charSet "utf-8"}]
@@ -100,7 +105,7 @@
         [:a
          {:href "https://github.com/seabre/matchcolor"}
          [:img
-          {:style {:position "absolute" :top 0 :left 0 :border 0}
+          {:style (map->css {:position "absolute" :top 0 :left 0 :border 0})
            :src
            "https://s3.amazonaws.com/github/ribbons/forkme_left_gray_6d6d6d.png",
            :alt "Fork me on GitHub"}]]
@@ -111,9 +116,9 @@
             [:div.inner
              [:h3.masthead-brand site-name]
              [:div#nav-wrapper
-              (om/build nav state)]]]
+              (render-html nav state)]]]
            [:div#partial-wrapper
-            (om/build (:partial state) state)]
+            (render-html (:partial state) state)]
            [:div.mastfoot
             [:div.inner
              [:p
@@ -124,7 +129,7 @@
         [:script {:src "/js/jscolor.js"}]
         [:script {:src "/js/bootstrap.min.js"}]
         [:script {:src "/js/docs.min.js"}]
-        [:script {:src "/js/matchcolor.js"}]]])))
+        [:script {:src "/js/matchcolor.js"}]]]))
 
 ;; render components to string. Used on the server
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -135,7 +140,7 @@
 
 (defn layout-render [layout-partial state]
   (str "<!DOCTYPE html>"
-       (render-html layout (assoc state :partial layout-partial))))
+       (layout (assoc state :partial layout-partial))))
 
 ;; browser render and routing functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
