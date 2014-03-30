@@ -31,9 +31,11 @@
 
      (.get "*"
            (fn [req resp next]
-             (let [{:keys [template active] :as view}
+             (let [{:keys [template state] :as view}
                    (secretary/dispatch! (.-url req))]
-               (if view (.send resp (views/layout-render template active)) (next)))))
+               (if view
+                 (.send resp (views/layout-render template state))
+                 (next)))))
 
      (.get "*" #(.send %2 (views/layout-render views/four-oh-four "404") 404))
 

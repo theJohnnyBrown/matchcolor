@@ -10,6 +10,7 @@
 (def node-require (if __dirname (js* "require")))
 (def node-process (if __dirname (js* "process")))
 
+(def app-state (atom {}))
 
 (def browser? (exists? js/document))
 (def site-name "MatchColor")
@@ -17,17 +18,14 @@
 
 (declare client-load!)
 
-(defn nav [active]
-  (fn []
-   (let [homeactive (if (= active "Home") :li.active :li)
-         aboutactive (if (= active "About") :li.active :li)]
-     (om/component
-      (html
-       [:ul.nav.masthead-nav
-        [homeactive
-         [:a {:href "/" :onClick client-load!} "Home"]]
-        [aboutactive
-         [:a {:href "/about" :onClick client-load!} "About"]]])))))
+(defn nav [{active :active}]
+  (om/component
+     (html
+      [:ul.nav.masthead-nav
+       [(if (= active "Home") :li.active :li)
+        [:a {:href "/" :onClick client-load!} "Home"]]
+       [(if (= active "About") :li.active :li)
+        [:a {:href "/about" :onClick client-load!} "About"]]])))
 
 (defn home []
   (om/component
@@ -67,8 +65,7 @@
       "Try again!"]])))
 
 (defn color [hsh]
-  (fn []
-   (om/component
+  (om/component
     (html
      [:div.inner.cover [:h1.cover-heading "Found it!"]
       [:div.row
@@ -80,11 +77,10 @@
          (str "Closest Match: " (get hsh :name) " (" (get hsh :foundcol) ")")]]
        [:div.col-md-4
         [:h2
-         (str "Color Distance: " (get hsh :colordistance))]]]]))))
+         (str "Color Distance: " (get hsh :colordistance))]]]])))
 
-(defn layout [layout-partial active]
-  (fn []
-    (om/component
+(defn layout [state]
+  (om/component
      (html
       [:html
        {:lang "en"}
@@ -96,7 +92,7 @@
         [:meta {:content "", :name "description"}]
         [:meta {:content "", :name "author"}]
         [:link {:href "/img/favicon.ico", :rel "shortcut icon"}]
-        [:title (str site-name " - " active)]
+        [:title (str site-name " - " (:active state))]
         [:link
          {:rel "stylesheet", :href "/css/bootstrap.min.css"}]
         [:link {:rel "stylesheet", :href "/css/cover.css"}]]
@@ -115,9 +111,9 @@
             [:div.inner
              [:h3.masthead-brand site-name]
              [:div#nav-wrapper
-              (om/build (nav active) {})]]]
+              (om/build nav state)]]]
            [:div#partial-wrapper
-            (om/build layout-partial {})]
+            (om/build (:partial state) state)]
            [:div.mastfoot
             [:div.inner
              [:p
@@ -128,17 +124,18 @@
         [:script {:src "/js/jscolor.js"}]
         [:script {:src "/js/bootstrap.min.js"}]
         [:script {:src "/js/docs.min.js"}]
-        [:script {:src "/js/matchcolor.js"}]]]))))
+        [:script {:src "/js/matchcolor.js"}]]])))
 
 ;; render components to string. Used on the server
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn render-html [component]
+(defn render-html [component state]
   (.renderComponentToString
    React
-   (om/build component {})))
+   (om/build component state)))
 
-(defn layout-render [layout-partial active]
-  (str "<!DOCTYPE html>" (render-html (layout layout-partial active))))
+(defn layout-render [layout-partial state]
+  (str "<!DOCTYPE html>"
+       (render-html layout (assoc state :partial layout-partial))))
 
 ;; browser render and routing functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

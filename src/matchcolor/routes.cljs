@@ -5,12 +5,13 @@
             [matchcolor.views :as views]
             [matchcolor.colorsimilarity :as colorsimilarity]))
 
-(defroute "/" [] {:template views/home :active "Home"})
+(defroute "/" [] {:template views/home :state {:active "Home"}})
 
-(defroute "/about" [] {:template views/about :active "About"})
+(defroute "/about" [] {:template views/about :state {:active "About"}})
 
 (defroute "/:hexcolor" [hexcolor]
   (if (color/hex? hexcolor)
-    {:template (views/color (colorsimilarity/likely-color hexcolor))
-     :active "Color"}
-    {:template views/invalid-color :active "Home"}))
+    {:template views/color
+     :state (merge {:active "Color"}
+                   (colorsimilarity/likely-color hexcolor))}
+    {:template views/invalid-color :state {:active "Home"}}))
