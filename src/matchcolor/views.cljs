@@ -1,16 +1,21 @@
 (ns matchcolor.views
   (:require [om.core :as om :include-macros true]
+            [goog.events :as ev]
             [sablono.core :as html :refer-macros [html]]
-            [cljs.nodejs :as nodejs]))
+            [clojure.string :as str])
+  (:import goog.history.Html5History))
+
+(def __dirname (if (exists? (js* "__dirname")) (js* "__dirname")))
+; Define namespaced references to Node's externed globals:
+(def node-require (if __dirname (js* "require")))
+(def node-process (if __dirname (js* "process")))
+
 
 (def browser? (exists? js/document))
 (def site-name "MatchColor")
-(def React (if browser? js/React (nodejs/require "react")))
+(def React (if browser? js/React (node-require "react")))
 
-(defn render-html [component]
-  (.renderComponentToString
-   React
-   (om/build component {})))
+(declare client-load!)
 
 (defn nav [active]
   (fn []
@@ -19,8 +24,10 @@
      (om/component
       (html
        [:ul.nav.masthead-nav
-        [homeactive [:a {:href "/"} "Home"]]
-        [aboutactive [:a {:href "/about"} "About"]]])))))
+        [homeactive
+         [:a {:href "/" :onClick client-load!} "Home"]]
+        [aboutactive
+         [:a {:href "/about" :onClick client-load!} "About"]]])))))
 
 (defn home []
   (om/component
@@ -107,8 +114,10 @@
            [:div.masthead.clearfix
             [:div.inner
              [:h3.masthead-brand site-name]
-             (om/build (nav active) {})]]
-           (om/build layout-partial {})
+             [:div#nav-wrapper
+              (om/build (nav active) {})]]]
+           [:div#partial-wrapper
+            (om/build layout-partial {})]
            [:div.mastfoot
             [:div.inner
              [:p
@@ -118,8 +127,33 @@
         [:script {:src "https://code.jquery.com/jquery-1.10.2.min.js"}]
         [:script {:src "/js/jscolor.js"}]
         [:script {:src "/js/bootstrap.min.js"}]
-        [:script {:src "/js/docs.min.js"}]]]))))
+        [:script {:src "/js/docs.min.js"}]
+        [:script {:src "/js/matchcolor.js"}]]]))))
 
+;; render components to string. Used on the server
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn render-html [component]
+  (.renderComponentToString
+   React
+   (om/build component {})))
 
 (defn layout-render [layout-partial active]
   (str "<!DOCTYPE html>" (render-html (layout layout-partial active))))
+
+;; browser render and routing functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(def hist
+  (if browser?
+   (doto (Html5History.) (.setUseFragment false) (.setEnabled true))))
+
+(defn strip-leading-slash [s] (if (= (str (first s)) "/")
+                                (str/join (rest s)) s))
+
+
+(defn client-load! [e] ;; e should be the click event of an <a>
+  ;; perform the equivalent of a page load without using the network
+  (do
+    (.setToken hist
+               (-> e .-target (.getAttribute "href") strip-leading-slash)
+               (-> e .-target .-title))
+    (.preventDefault e)))

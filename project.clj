@@ -12,12 +12,20 @@
 
   :cljsbuild
     {:builds
-     [{:source-paths ["src"]
+     [{:id "node"
+       :source-paths ["src"]
        :compiler
        {:pretty-print true
-        :preamble ["matchcolor/react_preamble.js"
-                   "react/react.min.js"]
+        :preamble ["matchcolor/react_preamble.js"]
         :target :nodejs
+        :optimizations :simple
+        :language-in :ecmascript5}}
+      {:id "browser"
+       :source-paths ["src"]
+       :compiler
+       {:pretty-print true
+        :output-to "assets/js/matchcolor.js"
+        :preamble ["react/react.js"]
         :optimizations :simple
         :language-in :ecmascript5}}]}
   :dependencies [[org.clojure/clojure "1.5.1"]
