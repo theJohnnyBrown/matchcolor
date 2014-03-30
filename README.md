@@ -2,6 +2,8 @@
 
 A server-side Node.js app written in ClojureScript to find the match or the closest match to a hexcolor.
 
+This is a fork of Sean Brewer's matchcolor, altered to use om and lein-npm
+
 ## Why?
 
 This was mainly an experiment in developing a simple web application in ClojureScript, using ClojureScript as the server-side language and Node.js as the runtime.
@@ -16,8 +18,7 @@ Layout is one of the [Bootstrap examples](http://getbootstrap.com/getting-starte
 
 1. `lein deps`
 2. `lein cljsbuild once`
-3. `npm install`
-4. `cd target && node cljsbuild-main.js`
+4. `cd target && supervisor -w cljsbuild-main.js cljsbuild-main.js`
 
 The app will be accessible on port 3000.
 
