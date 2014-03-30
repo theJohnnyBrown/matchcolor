@@ -24,4 +24,5 @@
                  [org.clojure/clojurescript "0.0-2197"]
                  [garden "1.1.5"]
                  [om "0.5.2"]
-                 [sablono "0.2.15"]])
+                 [sablono "0.2.15"]
+                 [secretary "1.1.0"]])

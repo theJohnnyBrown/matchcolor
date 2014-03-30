@@ -69,7 +69,7 @@
         [:h2 {:style {"color" (get hsh :initcol)}}
          (str "Your Color: " (get hsh :initcol))]]
        [:div.col-md-4
-        [:h2 {:style {"color:" (get hsh :foundcol)}}
+        [:h2 {:style {"color" (get hsh :foundcol)}}
          (str "Closest Match: " (get hsh :name) " (" (get hsh :foundcol) ")")]]
        [:div.col-md-4
         [:h2
