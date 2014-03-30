@@ -90,13 +90,9 @@
         [:meta {:content "", :name "author"}]
         [:link {:href "/img/favicon.ico", :rel "shortcut icon"}]
         [:title (str site-name " - " active)]
-        "<!-- Bootstrap core CSS -->"
         [:link
          {:rel "stylesheet", :href "/css/bootstrap.min.css"}]
-        "<!-- Custom styles for this template -->"
-        [:link {:rel "stylesheet", :href "/css/cover.css"}]
-        "<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->"
-        "<!--[if lt IE 9]>\n      <script src=\"https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js\"></script>\n      <script src=\"https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js\"></script>\n    <![endif]-->"]
+        [:link {:rel "stylesheet", :href "/css/cover.css"}]]
        [:body
         [:a
          {:href "https://github.com/seabre/matchcolor"}
@@ -118,8 +114,7 @@
              [:p
               "ClojureScript goodness provided by "
               [:a {:href "http://about.me/seabre"} "seabre"]]]]]]]
-        "<!-- Bootstrap core JavaScript\n    ================================================== -->"
-        "<!-- Placed at the end of the document so the pages load faster -->"
+
         [:script {:src "https://code.jquery.com/jquery-1.10.2.min.js"}]
         [:script {:src "/js/jscolor.js"}]
         [:script {:src "/js/bootstrap.min.js"}]
